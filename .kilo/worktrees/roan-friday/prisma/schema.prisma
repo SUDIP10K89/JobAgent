@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================
+// USER KNOWLEDGE BASE
+// =====================================================
+
+model Profile {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  location     String?
+  linkedin     String?
+  github       String?
+  portfolio    String?
+  headline     String?
+  summary      String?
+  // JSON arrays stored as text
+  skills       String   @default("[]")
+  projects     String   @default("[]")
+  education    String   @default("[]")
+  experience   String   @default("[]")
+  achievements String   @default("[]")
+  preferences  String   @default("{}")
+  // Search preferences
+  jobTitles    String   @default("[]")
+  locations    String   @default("[]")
+  remoteOnly   Boolean  @default(false)
+  minSalary    Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// =====================================================
+// JOB LISTINGS
+// =====================================================
+
+model Job {
+  id          String   @id @default(cuid())
+  source      String   @default("manual") // linkedin, indeed, glassdoor, wellfound, remoteok, ycombinator, manual
+  company     String
+  title       String
+  salary      String?
+  experience  String?
+  location    String?
+  remote      Boolean  @default(false)
+  url         String?
+  deadline    String?
+  description String?
+  // Computed by Job Matching Agent
+  matchScore  Int?
+  matchResult String?  // JSON: missing_skills, strengths, weaknesses, probability_of_interview
+  status      String   @default("new") // new, matched, shortlisted, dismissed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  applications Application[]
+}
+
+// =====================================================
+// APPLICATIONS
+// =====================================================
+
+model Application {
+  id              String   @id @default(cuid())
+  jobId           String
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  // Workflow status
+  status          String   @default("draft") // draft, pending_approval, applied, viewed, hr_contact, technical, offer, rejected
+  appliedAt      DateTime?
+  // Generated artifacts
+  resumeContent   String?
+  coverLetter     String?
+  screeningQA     String?  // JSON array of {question, answer}
+  interviewPrep   String?  // JSON
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([jobId])
+}
