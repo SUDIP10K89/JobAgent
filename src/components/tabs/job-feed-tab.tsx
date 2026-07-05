@@ -10,12 +10,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from '@/components/ui/dialog'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
   Loader2, Search, Target, FileText, MailOpen, ShieldQuestion, CheckCircle2,
   XCircle, Building2, MapPin, Briefcase, Clock, ExternalLink, Sparkles,
-  AlertTriangle, Wand2, Send,
+  AlertTriangle, Wand2, Send, FileCheck, ChevronRight,
 } from 'lucide-react'
 import type { Job, MatchResult } from '@/lib/types'
 import { getMatchColor, sourceBadge, parseMatchResult } from '@/lib/types'
@@ -45,6 +44,8 @@ export default function JobFeedTab({ onApplied }: JobFeedTabProps) {
   const [coverLetter, setCoverLetter] = useState<string>('')
   const [screening, setScreening] = useState<{ question: string; answer: string }[]>([])
   const [step, setStep] = useState<'idle' | 'matching' | 'ready' | 'applying'>('idle')
+  const [atsLoading, setAtsLoading] = useState(false)
+  const [ats, setAts] = useState<any>(null)
 
   const loadJobs = useCallback(async () => {
     setLoading(true)
@@ -82,8 +83,28 @@ export default function JobFeedTab({ onApplied }: JobFeedTabProps) {
     setResume(null)
     setCoverLetter('')
     setScreening([])
+    setAts(null)
     const m = parseMatchResult(job.matchResult)
     setStep(m ? 'ready' : 'idle')
+  }
+
+  async function runATS() {
+    if (!activeJob) return
+    setAtsLoading(true)
+    try {
+      const r = await fetch(`/api/jobs/${activeJob.id}/ats`, { method: 'POST' })
+      const d = await r.json()
+      if (d.error) {
+        toast.error(d.error)
+      } else {
+        setAts(d.ats)
+        toast.success(`ATS score: ${d.ats.score}%`)
+      }
+    } catch {
+      toast.error('ATS scoring failed')
+    } finally {
+      setAtsLoading(false)
+    }
   }
 
   async function runMatch() {
@@ -364,10 +385,10 @@ export default function JobFeedTab({ onApplied }: JobFeedTabProps) {
 
       {/* Approval Modal */}
       <Dialog open={!!activeJob} onOpenChange={(o) => !o && setActiveJob(null)}>
-        <DialogContent className="max-w-3xl max-h-[92vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-3xl max-h-[92vh] overflow-hidden flex flex-col gap-0">
           {activeJob && (
             <>
-              <DialogHeader>
+              <DialogHeader className="shrink-0 pb-2">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className={`text-[10px] ${sourceBadge(activeJob.source).color}`}>
                     {sourceBadge(activeJob.source).label}
@@ -387,8 +408,8 @@ export default function JobFeedTab({ onApplied }: JobFeedTabProps) {
                 </DialogDescription>
               </DialogHeader>
 
-              <ScrollArea className="flex-1 -mx-6 px-6">
-                <div className="space-y-4 pb-2">
+              <div className="flex-1 min-h-0 overflow-y-auto -mx-6 px-6 py-2">
+                <div className="space-y-4 pb-4">
                   {/* Match section */}
                   <section className="rounded-lg border border-border/60 p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -570,6 +591,75 @@ export default function JobFeedTab({ onApplied }: JobFeedTabProps) {
                     )}
                   </section>
 
+                  {/* ATS Scoring */}
+                  {resume && (
+                    <section className="rounded-lg border border-border/60 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <FileCheck className="h-4 w-4 text-primary" /> Agent 11: ATS Scoring
+                        </h4>
+                        <Button onClick={runATS} disabled={atsLoading} size="sm" variant="outline">
+                          {atsLoading ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Scoring...
+                            </>
+                          ) : (
+                            <>
+                              <FileCheck className="h-3.5 w-3.5 mr-1" /> {ats ? 'Re-score' : 'Run ATS Check'}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      {ats ? (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`text-3xl font-bold ${ats.score >= 80 ? 'text-emerald-300' : ats.score >= 60 ? 'text-amber-300' : 'text-rose-300'}`}>
+                              {ats.score}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              <div>ATS Compatibility Score</div>
+                              <div>Keyword coverage: {ats.keyword_coverage}% · Format: {ats.format_score}%</div>
+                            </div>
+                          </div>
+                          {ats.issues?.length > 0 && (
+                            <div className="space-y-1.5">
+                              <div className="text-xs font-medium text-muted-foreground">Issues found:</div>
+                              {ats.issues.map((issue: any, i: number) => (
+                                <div key={i} className={`text-xs p-2 rounded border ${
+                                  issue.severity === 'high'
+                                    ? 'border-rose-500/30 bg-rose-500/5 text-rose-200'
+                                    : issue.severity === 'medium'
+                                      ? 'border-amber-500/30 bg-amber-500/5 text-amber-200'
+                                      : 'border-zinc-500/30 bg-zinc-500/5 text-zinc-300'
+                                }`}>
+                                  <div className="font-medium">{issue.issue}</div>
+                                  <div className="text-muted-foreground mt-0.5">→ {issue.fix}</div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {ats.recommendations?.length > 0 && (
+                            <div>
+                              <div className="text-xs font-medium text-muted-foreground mb-1">Recommendations:</div>
+                              <ul className="text-xs text-muted-foreground space-y-0.5">
+                                {ats.recommendations.map((r: string, i: number) => (
+                                  <li key={i} className="flex items-start gap-1.5">
+                                    <ChevronRight className="h-3 w-3 mt-0.5 shrink-0 opacity-50" />
+                                    <span>{r}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Score your resume against ATS (Applicant Tracking System) best practices — checks keyword coverage, format, and identifies issues.
+                        </p>
+                      )}
+                    </section>
+                  )}
+
                   {/* JD */}
                   <section className="rounded-lg border border-border/60 p-4">
                     <h4 className="text-sm font-semibold mb-2">Job Description</h4>
@@ -588,9 +678,9 @@ export default function JobFeedTab({ onApplied }: JobFeedTabProps) {
                     )}
                   </section>
                 </div>
-              </ScrollArea>
+              </div>
 
-              <DialogFooter className="border-t border-border/60 pt-4">
+              <DialogFooter className="border-t border-border/60 pt-4 shrink-0">
                 <div className="flex items-center gap-2 w-full">
                   <Button
                     variant="ghost"

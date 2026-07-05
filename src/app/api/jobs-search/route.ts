@@ -1,61 +1,92 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getOrCreateProfile, toProfileData } from '@/lib/seed'
+import { requireAuth, getOrCreateProfileForUser, toProfileData } from '@/lib/session'
 import { runJobSearchAgent, type SeedJob } from '@/lib/agents'
+import { fetchAllRealJobs } from '@/lib/job-fetchers'
+import { createNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
-// POST: Run the job search agent to discover new jobs (simulated via LLM)
 export async function POST() {
-  const profile = toProfileData(await getOrCreateProfile())
-  let newJobs: SeedJob[] = []
-  let usedFallback = false
-
   try {
-    newJobs = await runJobSearchAgent(profile)
-  } catch (err) {
-    console.error('[jobs-search] error:', err)
-    usedFallback = true
-  }
+    const session = await requireAuth()
+    const profile = toProfileData(await getOrCreateProfileForUser(session.user))
 
-  if (!newJobs || newJobs.length === 0) {
-    return NextResponse.json({ added: 0, message: 'No new jobs found.' })
-  }
+    // Try real job boards first
+    let realResult: { added: number; bySource: Record<string, number>; total: number } | null = null
+    try {
+      realResult = await fetchAllRealJobs(profile, session.user.id)
+    } catch (err) {
+      console.error('[jobs-search] real fetchers failed:', err)
+    }
 
-  // Dedupe by company+title
-  const existing = await db.job.findMany({
-    where: {
-      OR: newJobs.map((j) => ({ company: j.company, title: j.title })),
-    },
-    select: { company: true, title: true },
-  })
-  const existingKeys = new Set(existing.map((e) => `${e.company}|${e.title}`))
+    // If real sources returned nothing, fall back to LLM synthesis
+    let llmAdded = 0
+    if (!realResult || realResult.added === 0) {
+      try {
+        const synthJobs: SeedJob[] = await runJobSearchAgent(profile)
+        const existing = await db.job.findMany({
+          where: { userId: session.user.id, OR: synthJobs.map((j) => ({ company: j.company, title: j.title })) },
+          select: { company: true, title: true },
+        })
+        const existingKeys = new Set(existing.map((e) => `${e.company}|${e.title}`))
 
-  let added = 0
-  for (const j of newJobs) {
-    const key = `${j.company}|${j.title}`
-    if (existingKeys.has(key)) continue
-    await db.job.create({
-      data: {
-        company: j.company,
-        title: j.title,
-        salary: j.salary ?? null,
-        experience: j.experience ?? null,
-        location: j.location ?? null,
-        remote: j.remote ?? false,
-        url: j.url ?? null,
-        deadline: j.deadline ?? null,
-        description: j.description ?? null,
-        source: j.source ?? 'manual',
-      },
+        for (const j of synthJobs) {
+          if (existingKeys.has(`${j.company}|${j.title}`)) continue
+          await db.job.create({
+            data: {
+              userId: session.user.id,
+              company: j.company,
+              title: j.title,
+              salary: j.salary ?? null,
+              experience: j.experience ?? null,
+              location: j.location ?? null,
+              remote: j.remote ?? false,
+              url: j.url ?? null,
+              deadline: j.deadline ?? null,
+              description: j.description ?? null,
+              source: j.source ?? 'manual',
+              status: 'new',
+            },
+          })
+          llmAdded++
+        }
+      } catch (err) {
+        console.error('[jobs-search] LLM fallback failed:', err)
+      }
+    }
+
+    const added = (realResult?.added ?? 0) + llmAdded
+    const message =
+      added > 0
+        ? `Discovered ${added} new job${added === 1 ? '' : 's'}${
+            realResult && realResult.added > 0
+              ? ` from ${Object.entries(realResult.bySource)
+                  .map(([s, n]) => `${n} ${s.toUpperCase()}`)
+                  .join(', ')}`
+              : ''
+          }`
+        : 'No new jobs found. Try again later.'
+
+    if (added > 0) {
+      await createNotification({
+        type: 'search_complete',
+        title: 'Job Search Complete',
+        message,
+        userId: session.user.id,
+        priority: 'low',
+      })
+    }
+
+    return NextResponse.json({
+      added,
+      realAdded: realResult?.added ?? 0,
+      llmAdded,
+      bySource: realResult?.bySource ?? {},
+      totalFetched: realResult?.total ?? 0,
+      message,
     })
-    added++
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-
-  return NextResponse.json({
-    added,
-    total: newJobs.length,
-    usedFallback,
-    message: `Discovered ${added} new job${added === 1 ? '' : 's'}.`,
-  })
 }

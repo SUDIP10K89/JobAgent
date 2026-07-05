@@ -7,13 +7,13 @@ import { Badge } from '@/components/ui/badge'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import {
   Loader2, Building2, Calendar, ArrowRight, ChevronRight, Brain,
-  CheckCircle2, XCircle, Clock, FileText, MailOpen,
+  CheckCircle2, XCircle, Clock, FileText, MailOpen, Download, Send,
+  Users, MessageSquare,
 } from 'lucide-react'
 import type { Application } from '@/lib/types'
 import { APP_STATUSES, getStatusInfo, parseScreeningQA, parseInterviewPrep } from '@/lib/types'
@@ -27,6 +27,8 @@ export default function ApplicationsTab() {
   const [activeApp, setActiveApp] = useState<Application | null>(null)
   const [prepLoading, setPrepLoading] = useState(false)
   const [prep, setPrep] = useState<any>(null)
+  const [networkingLoading, setNetworkingLoading] = useState(false)
+  const [followUpLoading, setFollowUpLoading] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -86,6 +88,59 @@ export default function ApplicationsTab() {
   function openApp(app: Application) {
     setActiveApp(app)
     setPrep(parseInterviewPrep(app.interviewPrep))
+  }
+
+  async function generateNetworking() {
+    if (!activeApp) return
+    setNetworkingLoading(true)
+    try {
+      const r = await fetch(`/api/applications/${activeApp.id}/networking`, { method: 'POST' })
+      const d = await r.json()
+      setApps((prev) =>
+        prev.map((a) => (a.id === activeApp.id ? { ...a, networkingMsg: d.message } : a))
+      )
+      setActiveApp((a) => (a ? { ...a, networkingMsg: d.message } : a))
+      toast.success('Networking message generated')
+    } catch {
+      toast.error('Failed to generate networking message')
+    } finally {
+      setNetworkingLoading(false)
+    }
+  }
+
+  async function generateFollowUp() {
+    if (!activeApp) return
+    setFollowUpLoading(true)
+    try {
+      const r = await fetch(`/api/applications/${activeApp.id}/follow-up`, { method: 'POST' })
+      const d = await r.json()
+      setApps((prev) =>
+        prev.map((a) =>
+          a.id === activeApp.id
+            ? {
+                ...a,
+                lastContactAt: new Date().toISOString(),
+                followUpCount: a.followUpCount + 1,
+              }
+            : a
+        )
+      )
+      toast.success('Follow-up email generated')
+      // Open in a way the user can copy
+      const blob = new Blob([d.message], { type: 'text/plain' })
+      const url = URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => URL.revokeObjectURL(url), 10000)
+    } catch {
+      toast.error('Failed to generate follow-up')
+    } finally {
+      setFollowUpLoading(false)
+    }
+  }
+
+  function downloadResumePDF() {
+    if (!activeApp) return
+    window.open(`/api/applications/${activeApp.id}/resume-pdf`, '_blank')
   }
 
   const byStatus = (status: string) => apps.filter((a) => a.status === status)
@@ -163,10 +218,10 @@ export default function ApplicationsTab() {
 
       {/* Application detail modal */}
       <Dialog open={!!activeApp} onOpenChange={(o) => !o && setActiveApp(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col gap-0">
           {activeApp && (
             <>
-              <DialogHeader>
+              <DialogHeader className="shrink-0 pb-2">
                 <Badge variant="outline" className={`text-[10px] w-fit ${getStatusInfo(activeApp.status).color}`}>
                   {getStatusInfo(activeApp.status).label}
                 </Badge>
@@ -181,7 +236,7 @@ export default function ApplicationsTab() {
                 </DialogDescription>
               </DialogHeader>
 
-              <ScrollArea className="flex-1 -mx-6 px-6">
+              <div className="flex-1 min-h-0 overflow-y-auto -mx-6 px-6 py-2">
                 <div className="space-y-4 pb-4">
                   {/* Status changer */}
                   <section className="rounded-lg border border-border/60 p-4">
@@ -249,12 +304,77 @@ export default function ApplicationsTab() {
                   {/* Resume */}
                   {activeApp.resumeContent && (
                     <section className="rounded-lg border border-border/60 p-4">
-                      <h4 className="text-sm font-semibold flex items-center gap-2 mb-2">
-                        <FileText className="h-4 w-4 text-emerald-300" /> Tailored Resume
-                      </h4>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-emerald-300" /> Tailored Resume
+                        </h4>
+                        <Button onClick={downloadResumePDF} size="sm" variant="outline">
+                          <Download className="h-3.5 w-3.5 mr-1" /> Download PDF
+                        </Button>
+                      </div>
                       <pre className="text-[11px] leading-relaxed whitespace-pre-wrap font-mono bg-muted/40 p-3 rounded-md max-h-48 overflow-y-auto">
                         {activeApp.resumeContent}
                       </pre>
+                    </section>
+                  )}
+
+                  {/* Networking message */}
+                  <section className="rounded-lg border border-border/60 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold flex items-center gap-2">
+                        <Users className="h-4 w-4 text-cyan-300" /> Agent 10: Networking Message
+                      </h4>
+                      <Button onClick={generateNetworking} disabled={networkingLoading} size="sm" variant="outline">
+                        {networkingLoading ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Writing...
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare className="h-3.5 w-3.5 mr-1" /> {activeApp.networkingMsg ? 'Regenerate' : 'Generate'}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {activeApp.networkingMsg ? (
+                      <pre className="text-xs leading-relaxed whitespace-pre-wrap font-sans bg-muted/40 p-3 rounded-md max-h-48 overflow-y-auto">
+                        {activeApp.networkingMsg}
+                      </pre>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Generates a LinkedIn connection request + follow-up message for recruiters at this company.
+                      </p>
+                    )}
+                  </section>
+
+                  {/* Follow-up — only for applied apps */}
+                  {(activeApp.status === 'applied' || activeApp.status === 'viewed') && (
+                    <section className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <Send className="h-4 w-4 text-amber-300" /> Agent 12: Follow-up Email
+                        </h4>
+                        <Button onClick={generateFollowUp} disabled={followUpLoading} size="sm" variant="outline">
+                          {followUpLoading ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Drafting...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-3.5 w-3.5 mr-1" /> Generate Follow-up
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div>Follow-ups sent: <span className="font-medium text-foreground">{activeApp.followUpCount}</span></div>
+                        {activeApp.lastContactAt && (
+                          <div>Last contact: <span className="font-medium text-foreground">{new Date(activeApp.lastContactAt).toLocaleDateString()}</span></div>
+                        )}
+                        {activeApp.nextFollowUpAt && (
+                          <div>Next follow-up: <span className="font-medium text-foreground">{new Date(activeApp.nextFollowUpAt).toLocaleDateString()}</span></div>
+                        )}
+                      </div>
                     </section>
                   )}
 
@@ -287,7 +407,7 @@ export default function ApplicationsTab() {
                     </section>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </>
           )}
         </DialogContent>

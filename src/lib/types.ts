@@ -55,8 +55,11 @@ export interface Job {
   url: string | null
   deadline: string | null
   description: string | null
+  tags: string | null
   matchScore: number | null
   matchResult: string | null
+  atsScore: number | null
+  atsResult: string | null
   status: string
   createdAt: string
   updatedAt: string
@@ -69,10 +72,14 @@ export interface Application {
   job?: Job
   status: string
   appliedAt: string | null
+  lastContactAt: string | null
+  nextFollowUpAt: string | null
+  followUpCount: number
   resumeContent: string | null
   coverLetter: string | null
   screeningQA: string | null
   interviewPrep: string | null
+  networkingMsg: string | null
   notes: string | null
   createdAt: string
   updatedAt: string
@@ -120,6 +127,8 @@ export function sourceBadge(source: string) {
     wellfound: { label: 'Wellfound', color: 'text-amber-300 bg-amber-500/10' },
     remoteok: { label: 'RemoteOK', color: 'text-teal-300 bg-teal-500/10' },
     ycombinator: { label: 'YC Jobs', color: 'text-orange-300 bg-orange-500/10' },
+    arbeitnow: { label: 'Arbeitnow', color: 'text-cyan-300 bg-cyan-500/10' },
+    hn: { label: 'HN', color: 'text-amber-300 bg-amber-500/10' },
     manual: { label: 'Manual', color: 'text-zinc-300 bg-zinc-500/10' },
   }
   return map[source] ?? { label: source, color: 'text-zinc-300 bg-zinc-500/10' }

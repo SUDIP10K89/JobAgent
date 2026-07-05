@@ -1,19 +1,31 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
+  Avatar, AvatarFallback, AvatarImage,
+} from '@/components/ui/avatar'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   LayoutDashboard, Search, KanbanSquare, Brain, Database,
-  Github, Linkedin, Globe, Sparkles, Zap, Bot,
+  Sparkles, Zap, Bot, BarChart3, Settings, LogOut, User as UserIcon, Loader2,
 } from 'lucide-react'
 import OverviewTab from '@/components/tabs/overview-tab'
 import KnowledgeBaseTab from '@/components/tabs/knowledge-base-tab'
 import JobFeedTab from '@/components/tabs/job-feed-tab'
 import ApplicationsTab from '@/components/tabs/applications-tab'
+import AnalyticsTab from '@/components/tabs/analytics-tab'
+import SettingsTab from '@/components/tabs/settings-tab'
+import NotificationsBell from '@/components/notifications-bell'
+import LoginScreen from '@/components/login-screen'
 
-type TabId = 'overview' | 'knowledge' | 'jobs' | 'applications' | 'interview'
+type TabId = 'overview' | 'knowledge' | 'jobs' | 'applications' | 'interview' | 'analytics' | 'settings'
 
 const NAV: { id: TabId; label: string; icon: React.ReactNode; agent?: string; desc: string }[] = [
   { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="h-4 w-4" />, desc: 'Dashboard & funnel' },
@@ -21,11 +33,36 @@ const NAV: { id: TabId; label: string; icon: React.ReactNode; agent?: string; de
   { id: 'jobs', label: 'Job Feed', icon: <Search className="h-4 w-4" />, agent: 'Agents 1–6', desc: 'Match & generate' },
   { id: 'applications', label: 'Applications', icon: <KanbanSquare className="h-4 w-4" />, agent: 'Agent 8', desc: 'Track pipeline' },
   { id: 'interview', label: 'Interview Prep', icon: <Brain className="h-4 w-4" />, agent: 'Agent 9', desc: 'Prep materials' },
+  { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, desc: 'Stats & export' },
+  { id: 'settings', label: 'Settings', icon: <Settings className="h-4 w-4" />, desc: 'Sources & prefs' },
 ]
 
 export default function Home() {
+  const { data: session, status } = useSession()
   const [tab, setTab] = useState<TabId>('overview')
   const [refreshKey, setRefreshKey] = useState(0)
+
+  // Loading state — checking session
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  // Not authenticated — show login screen
+  if (!session) {
+    return <LoginScreen />
+  }
+
+  const userName = session.user?.name || session.user?.email || 'User'
+  const initials = userName
+    .split(' ')
+    .map((n: string) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -51,34 +88,52 @@ export default function Home() {
             </Badge>
           </div>
 
-          <div className="flex items-center gap-2">
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-md hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="GitHub"
-            >
-              <Github className="h-4 w-4" />
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-md hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="h-4 w-4" />
-            </a>
-            <a
-              href="https://example.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-md hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Portfolio"
-            >
-              <Globe className="h-4 w-4" />
-            </a>
+          <div className="flex items-center gap-1">
+            <NotificationsBell />
+
+            {/* User avatar dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="ml-1 flex items-center gap-2 p-1 pr-2 rounded-full hover:bg-muted/60 transition-colors">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src={session.user?.image ?? undefined} alt={userName} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-xs font-medium">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline text-xs text-muted-foreground max-w-[120px] truncate">
+                    {userName}
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {session.user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setTab('knowledge')}>
+                  <UserIcon className="h-4 w-4 mr-2" />
+                  Knowledge Base
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTab('settings')}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="text-rose-300 focus:text-rose-200 focus:bg-rose-500/10"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -207,6 +262,8 @@ export default function Home() {
           )}
           {tab === 'applications' && <ApplicationsTab />}
           {tab === 'interview' && <InterviewPrepLanding onNavigate={(t) => setTab(t as TabId)} />}
+          {tab === 'analytics' && <AnalyticsTab />}
+          {tab === 'settings' && <SettingsTab />}
         </main>
       </div>
     </div>

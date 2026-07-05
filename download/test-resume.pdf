@@ -1,0 +1,61 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 1000 0 R /F2 1001 0 R /F3 1002 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 429 >>
+stream
+60.0 112.0 m 552.0 112.0 l
+1 w
+0.796078431372549 0.8352941176470589 0.8823529411764706 RG
+S
+BT
+/F2 22 Tf
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+60.0 70.0 Td
+(Sudip Tamang) Tj
+ET
+BT
+/F1 9 Tf
+0.2784313725490196 0.3333333333333333 0.4117647058823529 rg
+60.0 98.0 Td
+() Tj
+ET
+BT
+/F1 8 Tf
+0.58 0.58 0.58 rg
+206.0 30 Td
+(Sudip Tamang  Resume for React Developer at F1Soft International  |  Page 1 of 1) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+1000 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+1001 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000270 00000 n 
+0000000749 00000 n 
+0000000819 00000 n 
+0000000897 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+978
+%%EOF

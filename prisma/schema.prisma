@@ -11,11 +11,68 @@ datasource db {
 }
 
 // =====================================================
+// USER (NextAuth)
+// =====================================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  image         String?
+  emailVerified DateTime?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile       Profile?
+  jobs          Job[]
+  notifications Notification[]
+  settings      Setting[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// =====================================================
 // USER KNOWLEDGE BASE
 // =====================================================
 
 model Profile {
   id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name         String
   email        String
   phone        String?
@@ -47,7 +104,10 @@ model Profile {
 
 model Job {
   id          String   @id @default(cuid())
-  source      String   @default("manual") // linkedin, indeed, glassdoor, wellfound, remoteok, ycombinator, manual
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source      String   @default("manual")
+  externalId  String?
   company     String
   title       String
   salary      String?
@@ -57,14 +117,20 @@ model Job {
   url         String?
   deadline    String?
   description String?
-  // Computed by Job Matching Agent
+  tags        String   @default("[]")
   matchScore  Int?
-  matchResult String?  // JSON: missing_skills, strengths, weaknesses, probability_of_interview
-  status      String   @default("new") // new, matched, shortlisted, dismissed
+  matchResult String?
+  atsScore    Int?
+  atsResult   String?
+  status      String   @default("new")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   applications Application[]
+
+  @@index([source, externalId])
+  @@index([matchScore])
+  @@index([userId])
 }
 
 // =====================================================
@@ -75,17 +141,53 @@ model Application {
   id              String   @id @default(cuid())
   jobId           String
   job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  // Workflow status
-  status          String   @default("draft") // draft, pending_approval, applied, viewed, hr_contact, technical, offer, rejected
-  appliedAt      DateTime?
-  // Generated artifacts
+  status          String   @default("draft")
+  appliedAt       DateTime?
+  lastContactAt   DateTime?
+  nextFollowUpAt  DateTime?
+  followUpCount   Int      @default(0)
   resumeContent   String?
   coverLetter     String?
-  screeningQA     String?  // JSON array of {question, answer}
-  interviewPrep   String?  // JSON
+  screeningQA     String?
+  interviewPrep   String?
+  networkingMsg   String?
   notes           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@unique([jobId])
+}
+
+// =====================================================
+// NOTIFICATIONS
+// =====================================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  jobId     String?
+  applicationId String?
+  read      Boolean  @default(false)
+  priority  String   @default("normal")
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+}
+
+// =====================================================
+// SETTINGS (key-value store, per user)
+// =====================================================
+
+model Setting {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key    String
+  value  String
+
+  @@unique([userId, key])
 }

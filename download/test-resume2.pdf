@@ -1,0 +1,279 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 1000 0 R /F2 1001 0 R /F3 1002 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 6801 >>
+stream
+60.0 128.0 m 552.0 128.0 l
+1 w
+0.796078431372549 0.8352941176470589 0.8823529411764706 RG
+S
+60.0 170.0 m 552.0 170.0 l
+0.5 w
+0.050980392156862744 0.5803921568627451 0.5333333333333333 RG
+S
+60.0 217.0 m 552.0 217.0 l
+0.5 w
+0.050980392156862744 0.5803921568627451 0.5333333333333333 RG
+S
+60.0 264.0 m 552.0 264.0 l
+0.5 w
+0.050980392156862744 0.5803921568627451 0.5333333333333333 RG
+S
+60.0 406.0 m 552.0 406.0 l
+0.5 w
+0.050980392156862744 0.5803921568627451 0.5333333333333333 RG
+S
+60.0 660.0 m 552.0 660.0 l
+0.5 w
+0.050980392156862744 0.5803921568627451 0.5333333333333333 RG
+S
+BT
+/F2 22 Tf
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+60.0 70.0 Td
+(Sudip Tamang) Tj
+ET
+BT
+/F1 9 Tf
+0.2784313725490196 0.3333333333333333 0.4117647058823529 rg
+60.0 98.0 Td
+(Email: sudip@example.com | Phone: +977-98XXXXXXXX | Location: Kathmandu, Nepal) Tj
+ET
+BT
+/F3 11 Tf
+0.050980392156862744 0.5803921568627451 0.5333333333333333 rg
+60.0 112.0 Td
+(LinkedIn: https://linkedin.com/in/sudip | GitHub: https://github.com/sudip | Portfolio: https://sudip.dev) Tj
+ET
+BT
+/F2 11 Tf
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+60.0 156.0 Td
+(SUMMARY) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 178.0 Td
+(Customer-centric MERN Stack Developer with experience building production web applications and RESTful APIs. Passionate about creating scalable solutions that enhance user experiences and drive business growth.) Tj
+ET
+BT
+/F2 11 Tf
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+60.0 203.0 Td
+(SKILLS) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 225.0 Td
+(React, Node.js, Express, MongoDB, TypeScript, JavaScript, Tailwind CSS, REST API, Git, PostgreSQL, Next.js, Docker) Tj
+ET
+BT
+/F2 11 Tf
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+60.0 250.0 Td
+(EXPERIENCE) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 272.0 Td
+(Freelance Full-Stack Developer @ Self-employed \(2023 - Present\)) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 285.0 Td
+(" Built and deployed 5+ MERN web applications for local clients, handling everything from requirements to deployment) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 298.0 Td
+(" Developed RESTful APIs with Node.js and Express, ensuring seamless integration with frontend components) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 311.0 Td
+(" Implemented responsive UI designs with React and Tailwind CSS, improving user engagement by 30%) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 328.0 Td
+(Frontend Developer Intern @ Local Startup \(3 months, 2023\)) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 341.0 Td
+(" Developed React components and integrated REST APIs to enhance functionality) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 354.0 Td
+(" Optimized page load performance by 40% through code splitting and lazy loading techniques) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 367.0 Td
+(" Collaborated with cross-functional teams to deliver features on time and within scope) Tj
+ET
+BT
+/F2 11 Tf
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+60.0 392.0 Td
+(PROJECTS) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 414.0 Td
+(Spotify AI Companion | React, Node.js, Express, MongoDB, OpenAI API) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 427.0 Td
+(" Created a web app that uses OpenAI to generate personalized playlist recommendations based on mood and listening history) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 440.0 Td
+(" Implemented OAuth authentication and real-time music player functionality) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 453.0 Td
+(" Developed recommendation engine that increased user engagement by 45%) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 470.0 Td
+(Complaint Management System | React, Node.js, Express, PostgreSQL, JWT) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 483.0 Td
+(" Built a multi-tenant complaint system for municipalities with role-based authentication) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 496.0 Td
+(" Implemented ticket assignment, SLA tracking, and analytics dashboards) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 509.0 Td
+(" Served 500+ users with 99.9% uptime through optimized database queries) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 526.0 Td
+(AI Chatbot for Education | Next.js, Node.js, MongoDB, OpenAI API, WebSocket) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 539.0 Td
+(" Developed a real-time chatbot that answers student queries about courses and admissions) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 552.0 Td
+(" Implemented RAG with course catalogs and streamed responses via WebSocket) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 565.0 Td
+(" Reduced response time by 60% compared to traditional chatbot solutions) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 582.0 Td
+(Social Network Graph Analyzer | React, D3.js, Node.js, Neo4j) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 595.0 Td
+(" Created a visualization tool for analyzing social network graphs to detect communities and influencers) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 608.0 Td
+(" Implemented graph algorithms to identify information flow patterns) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+72.0 621.0 Td
+(" Processed 1M+ nodes with optimized performance through Neo4j indexing) Tj
+ET
+BT
+/F2 11 Tf
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+60.0 646.0 Td
+(EDUCATION) Tj
+ET
+BT
+/F1 9.5 Tf
+0.11764705882352941 0.1607843137254902 0.23137254901960785 rg
+60.0 668.0 Td
+(BSc. Computer Science and Information Technology @ Tribhuvan University \(2024\)) Tj
+ET
+BT
+/F1 8 Tf
+0.58 0.58 0.58 rg
+206.0 30 Td
+(Sudip Tamang  Resume for MERN Developer at Daily Harvest looking for enthusiastic customercentric Softw  |  Page 1 of 1) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+1000 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+1001 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000270 00000 n 
+0000007122 00000 n 
+0000007192 00000 n 
+0000007270 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+7351
+%%EOF
